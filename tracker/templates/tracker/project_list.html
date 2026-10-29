@@ -1,0 +1,84 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Software Projects - Trackify{% endblock %}
+{% block header_title %}Software Projects Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+    <!-- Header Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">Tracked Repositories & Projects</h4>
+            <p class="text-muted small mb-0">Overview of all active applications and system modules</p>
+        </div>
+        {% if user.role == 'admin' %}
+        <a href="{% url 'project_create' %}" class="btn btn-brand-primary">
+            <i class="bi bi-folder-plus me-1"></i> New Project
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="row g-4">
+        {% for project in projects %}
+        <div class="col-xl-4 col-md-6">
+            <div class="modern-card p-4 h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <!-- Card Header: Title & Status -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-3 p-2 bg-primary bg-opacity-10 text-primary">
+                                <i class="bi bi-code-square fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">{{ project.name }}</h5>
+                                <span class="text-muted small">ID: #PROJ-{{ project.id }}</span>
+                            </div>
+                        </div>
+                        <span class="badge-pill-soft {% if project.status == 'active' %}badge-soft-success{% elif project.status == 'completed' %}badge-soft-primary{% else %}badge-soft-warning{% endif %}">
+                            <i class="bi bi-circle-fill" style="font-size: 6px;"></i> {{ project.get_status_display }}
+                        </span>
+                    </div>
+
+                    <!-- Description -->
+                    <p class="text-muted small mb-4" style="line-height: 1.6; min-height: 48px;">
+                        {{ project.description|default:"No description provided for this software repository." }}
+                    </p>
+                </div>
+
+                <!-- Footer Stats & CTA -->
+                <div class="pt-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small">
+                            <i class="bi bi-calendar3 me-1"></i> Launched: {{ project.start_date|date:"M d, Y" }}
+                        </span>
+                        <span class="badge bg-danger bg-opacity-10 text-danger fw-semibold px-2 py-1 rounded-pill">
+                            <i class="bi bi-bug me-1"></i>{{ project.tickets.count }} Tickets
+                        </span>
+                    </div>
+                    
+                    <a href="{% url 'ticket_list' %}?project={{ project.id }}" class="btn btn-outline-primary w-100 rounded-3 fw-semibold">
+                        View Bug Tickets <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="modern-card p-5 text-center text-muted">
+                <i class="bi bi-folder-x fs-1 text-primary d-block mb-3"></i>
+                <h5 class="fw-bold text-dark">No Software Projects Available</h5>
+                <p class="small mb-4">Get started by creating your first software development project.</p>
+                {% if user.role == 'admin' %}
+                <a href="{% url 'project_create' %}" class="btn btn-brand-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Create Project
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

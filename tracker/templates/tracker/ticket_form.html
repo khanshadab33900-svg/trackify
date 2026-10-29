@@ -1,0 +1,48 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}{% if object %}Update Ticket: #BUG-{{ object.id }}{% else %}Report New Bug{% endif %} - Trackify{% endblock %}
+{% block header_title %}{% if object %}Edit Ticket #BUG-{{ object.id }}{% else %}Submit Bug Report{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="modern-card p-4 p-md-5">
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                    <div class="rounded-3 p-3 {% if object %}bg-warning text-dark{% else %}bg-danger text-white{% endif %} bg-opacity-10 fs-4">
+                        <i class="bi {% if object %}bi-pencil-square text-warning{% else %}bi-bug-fill text-danger{% endif %}"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1">{% if object %}Modify Ticket Specifications{% else %}Report Software Defect{% endif %}</h4>
+                        <p class="text-muted small mb-0">Fill in the defect report parameters to notify the development team</p>
+                    </div>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text small">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="d-flex align-items-center gap-3 pt-3 border-top">
+                        <button type="submit" class="btn {% if object %}btn-warning fw-bold{% else %}btn-brand-danger{% endif %} px-4 py-2">
+                            <i class="bi bi-check-lg me-1"></i> {% if object %}Save Changes{% else %}Submit Bug Report{% endif %}
+                        </button>
+                        <a href="javascript:history.back()" class="btn btn-light border px-4 py-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

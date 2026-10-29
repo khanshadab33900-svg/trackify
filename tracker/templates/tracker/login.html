@@ -1,0 +1,446 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trackify - Sign In to Workspace</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.2) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 960px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .brand-icon-lg {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+
+        .auth-feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .auth-feature-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            color: #0f172a;
+            padding: 48px 40px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .form-control {
+            border: 1.5px solid #e2e8f0;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }
+
+        .btn-signin {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            border: none;
+            font-weight: 700;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .btn-signin:hover {
+            background: linear-gradient(135deg, #4338ca, #4f46e5);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .demo-chip {
+            cursor: pointer;
+            padding: 6px 12px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+
+        .demo-chip:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        /* Server Wakeup Overlay Modal */
+        #wakeModalOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            padding: 20px;
+        }
+
+        .wake-modal-card {
+            background: #1e293b;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 36px 32px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            animation: fadeInScale 0.3s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .pulse-ring {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .pulse-ring::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid #6366f1;
+            animation: ripple 1.8s infinite ease-out;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        /* Server Ready Toast */
+        #serverReadyToast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: #0f766e;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Waking Up Modal (Auto triggers if backend is sleeping on Render Free Tier) -->
+<div id="wakeModalOverlay">
+    <div class="wake-modal-card">
+        <div class="pulse-ring">
+            <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;"></div>
+        </div>
+        <h4 class="fw-bold mb-2">⚡ Waking Up Server...</h4>
+        <p class="text-white-50 small mb-3">
+            Render Free Tier spins down inactive web services. We are automatically booting the backend instance.
+        </p>
+        
+        <div class="progress bg-dark mb-3" style="height: 6px; border-radius: 3px;">
+            <div id="wakeProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 15%"></div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center text-white-50 small">
+            <span>Elapsed: <strong id="wakeTimer" class="text-white">0s</strong></span>
+            <span>Est: 20-35s</span>
+        </div>
+    </div>
+</div>
+
+<!-- Toast notification when backend is ready -->
+<div id="serverReadyToast">
+    <i class="bi bi-check-circle-fill fs-5 text-warning"></i>
+    <span>Server is Active & Connected!</span>
+</div>
+
+<div class="auth-container">
+    <div class="row g-0">
+        
+        <!-- Left Side: Branding & Value Proposition -->
+        <div class="col-lg-6 p-5 d-none d-lg-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="brand-icon-lg">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0 text-white">Trackify</h3>
+                        <span class="text-white-50 small">Enterprise Bug & Issue Tracker</span>
+                    </div>
+                </div>
+
+                <h2 class="fw-bold text-white mb-3" style="line-height: 1.3;">
+                    Streamline software defects, triage tasks & ship with confidence.
+                </h2>
+                <p class="text-white-50 mb-5">
+                    Centralized platform for developers, quality assurance teams, and project managers to report, assign, and resolve software issues.
+                </p>
+
+                <!-- Value Features -->
+                <div class="auth-feature-item">
+                    <div class="auth-feature-icon">
+                        <i class="bi bi-bug-fill"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-1">Defect Lifecycle Management</h6>
+                        <p class="text-white-50 small mb-0">Priority tracking, screenshots attachment, and developer assignments.</p>
+                    </div>
+                </div>
+
+                <div class="auth-feature-item">
+                    <div class="auth-feature-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-1">Role-Based Access Control</h6>
+                        <p class="text-white-50 small mb-0">Distinct workflows tailored for Administrators, Developers, and Testers.</p>
+                    </div>
+                </div>
+
+                <div class="auth-feature-item">
+                    <div class="auth-feature-icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-1">Real-Time Project Analytics</h6>
+                        <p class="text-white-50 small mb-0">Actionable insight into bug resolution rates and project velocity.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-white-50 small pt-3 border-top border-secondary border-opacity-25">
+                © 2026 Trackify Systems Inc. • Built with Python & Django
+            </div>
+        </div>
+
+        <!-- Right Side: Interactive Sign-In Form -->
+        <div class="col-lg-6">
+            <div class="auth-card">
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-1">Sign In</h3>
+                    <p class="text-muted small">Enter your workspace credentials to access your dashboard</p>
+                </div>
+
+                {% if form.errors %}
+                <div class="alert alert-danger py-2 px-3 rounded-3 small mb-3">
+                    <i class="bi bi-exclamation-circle-fill me-1"></i> Invalid username or password. Please try again.
+                </div>
+                {% endif %}
+
+                <form method="post" id="loginForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
+                            <input type="text" name="username" id="id_username" class="form-control border-start-0" placeholder="Enter username" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold text-muted">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="password" id="id_password" class="form-control border-start-0" placeholder="Enter password" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnSignIn" class="btn btn-signin w-100 mb-4">
+                        Sign In to Workspace <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </form>
+
+                <!-- Quick 1-Click Demo Fill for College Presentation -->
+                <div class="pt-3 border-top">
+                    <div class="text-muted small fw-semibold mb-2">⚡ Quick Demo Login (1-Click):</div>
+                    <div class="d-flex gap-2">
+                        <span class="demo-chip" onclick="fillCredentials('admin', 'admin123')">
+                            <i class="bi bi-shield-lock-fill text-primary me-1"></i> Admin Demo
+                        </span>
+                        <span class="demo-chip" onclick="fillCredentials('rahul_dev', 'admin123')">
+                            <i class="bi bi-code-slash text-success me-1"></i> Developer Demo
+                        </span>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <span class="text-muted small">Don't have an account?</span>
+                    <a href="{% url 'register' %}" class="small text-primary text-decoration-none fw-bold ms-1">Sign Up</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function fillCredentials(user, pass) {
+        document.getElementById('id_username').value = user;
+        document.getElementById('id_password').value = pass;
+    }
+
+    // Auto-Wakeup Logic for Render Free Tier
+    (function initBackendWakeup() {
+        const healthUrl = window.BACKEND_API_URL ? `${window.BACKEND_API_URL}/api/health/` : '/api/health/';
+        const overlay = document.getElementById('wakeModalOverlay');
+        const timerEl = document.getElementById('wakeTimer');
+        const progressBar = document.getElementById('wakeProgressBar');
+        const toast = document.getElementById('serverReadyToast');
+        
+        let seconds = 0;
+        let timerInterval = null;
+        let isAwake = false;
+
+        // If backend does not respond within 1.5 seconds, show popup
+        const showTimeout = setTimeout(() => {
+            if (!isAwake) {
+                overlay.style.display = 'flex';
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    timerEl.innerText = `${seconds}s`;
+                    let progress = Math.min(15 + seconds * 2.5, 95);
+                    progressBar.style.width = `${progress}%`;
+                }, 1000);
+            }
+        }, 1500);
+
+        // Immediate background ping as soon as page loads
+        fetch(healthUrl, { cache: 'no-store' })
+            .then(res => res.json())
+            .then(data => {
+                isAwake = true;
+                clearTimeout(showTimeout);
+                if (timerInterval) clearInterval(timerInterval);
+                
+                // Animate progress to 100% and hide popup
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    // Show success toast briefly
+                    toast.style.display = 'flex';
+                    setTimeout(() => { toast.style.display = 'none'; }, 3500);
+                }, 400);
+            })
+            .catch(err => {
+                console.log('Backend wake ping in progress...', err);
+                // Retry every 3 seconds until awake
+                const retryInterval = setInterval(() => {
+                    fetch(healthUrl, { cache: 'no-store' })
+                        .then(r => r.json())
+                        .then(() => {
+                            clearInterval(retryInterval);
+                            isAwake = true;
+                            if (timerInterval) clearInterval(timerInterval);
+                            progressBar.style.width = '100%';
+                            setTimeout(() => {
+                                overlay.style.display = 'none';
+                                toast.style.display = 'flex';
+                                setTimeout(() => { toast.style.display = 'none'; }, 3500);
+                            }, 400);
+                        })
+                        .catch(() => {});
+                }, 3000);
+            });
+    })();
+</script>
+
+</body>
+</html>

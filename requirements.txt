@@ -1,0 +1,8 @@
+Django>=5.0,<7.0
+asgiref
+sqlparse
+tzdata
+Pillow
+gunicorn
+whitenoise
+django-cors-headers

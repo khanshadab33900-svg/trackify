@@ -1,0 +1,474 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Trackify - Modern Issue & Bug Tracker{% endblock %}</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-primary: #4f46e5;
+            --brand-primary-hover: #4338ca;
+            --brand-secondary: #06b6d4;
+            --brand-accent: #8b5cf6;
+            --sidebar-bg: #0f172a;
+            --sidebar-border: #1e293b;
+            --body-bg: #f8fafc;
+            --card-border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styling */
+        .app-sidebar {
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            z-index: 1030;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            border-bottom: 1px solid var(--sidebar-border);
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .brand-text {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            background: rgba(99, 102, 241, 0.25);
+            color: #818cf8;
+            border-radius: 4px;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            margin-left: 4px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 14px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            padding: 8px 12px 6px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.92rem;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link i {
+            font-size: 1.15rem;
+            transition: transform 0.2s ease;
+        }
+
+        .sidebar-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .sidebar-link:hover i {
+            transform: translateX(2px);
+        }
+
+        .sidebar-link.active {
+            color: #ffffff;
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.85), rgba(99, 102, 241, 0.65));
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        /* User Profile in Sidebar */
+        .sidebar-user {
+            padding: 16px;
+            background: #090d16;
+            border-top: 1px solid var(--sidebar-border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .user-info {
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .user-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        .user-role-badge {
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            color: #94a3b8;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 1.1rem;
+            padding: 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Top Header Navbar */
+        .app-header {
+            margin-left: 260px;
+            height: 70px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        .header-title-box h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Main Content Container */
+        .app-main {
+            margin-left: 260px;
+            padding: 32px;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Modern UI Cards */
+        .modern-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s ease;
+        }
+
+        .modern-card:hover {
+            box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.06), 0 4px 10px -2px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Badge Enhancements */
+        .badge-pill-soft {
+            padding: 5px 12px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-soft-danger {
+            background-color: #ffe4e6;
+            color: #e11d48;
+            border: 1px solid rgba(225, 29, 72, 0.2);
+        }
+
+        .badge-soft-warning {
+            background-color: #fef3c7;
+            color: #d97706;
+            border: 1px solid rgba(217, 119, 6, 0.2);
+        }
+
+        .badge-soft-success {
+            background-color: #dcfce7;
+            color: #16a34a;
+            border: 1px solid rgba(22, 163, 74, 0.2);
+        }
+
+        .badge-soft-info {
+            background-color: #e0f2fe;
+            color: #0284c7;
+            border: 1px solid rgba(2, 132, 199, 0.2);
+        }
+
+        .badge-soft-primary {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            border: 1px solid rgba(79, 70, 229, 0.2);
+        }
+
+        /* Custom Buttons */
+        .btn-brand-primary {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 9px 20px;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
+            transition: all 0.2s ease;
+        }
+
+        .btn-brand-primary:hover {
+            background: linear-gradient(135deg, #4338ca, #4f46e5);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+        }
+
+        .btn-brand-danger {
+            background: linear-gradient(135deg, #ef4444, #f43f5e);
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 9px 20px;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.28);
+            transition: all 0.2s ease;
+        }
+
+        .btn-brand-danger:hover {
+            background: linear-gradient(135deg, #dc2626, #e11d48);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.35);
+        }
+
+        /* Modern Table Styles */
+        .table-modern {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .table-modern thead th {
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .table-modern tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        .table-modern tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .table-modern tbody td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 992px) {
+            .app-sidebar {
+                transform: translateX(-100%);
+            }
+            .app-header, .app-main {
+                margin-left: 0;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Modern Sidebar Navigation -->
+    <aside class="app-sidebar">
+        <!-- Brand Logo -->
+        <a href="{% url 'dashboard' %}" class="sidebar-brand">
+            <div class="brand-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="d-flex align-items-center">
+                <span class="brand-text">Trackify</span>
+                <span class="brand-badge">SaaS</span>
+            </div>
+        </a>
+
+        <!-- Navigation Menu -->
+        <div class="sidebar-nav">
+            <div class="nav-label">Core Modules</div>
+            <a href="{% url 'dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{% url 'project_list' %}" class="sidebar-link {% if 'project' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="bi bi-folder2-open"></i>
+                <span>Projects</span>
+            </a>
+            <a href="{% url 'ticket_list' %}" class="sidebar-link {% if 'ticket' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="bi bi-bug-fill"></i>
+                <span>Bug Tickets</span>
+            </a>
+
+            <div class="nav-label mt-3">Quick Actions</div>
+            <a href="{% url 'ticket_create' %}" class="sidebar-link text-danger">
+                <i class="bi bi-plus-circle-fill"></i>
+                <span>Report Bug</span>
+            </a>
+            {% if user.role == 'admin' %}
+            <a href="{% url 'project_create' %}" class="sidebar-link text-primary">
+                <i class="bi bi-folder-plus"></i>
+                <span>New Project</span>
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- User Profile Card in Sidebar Footer -->
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ user.username|slice:":1"|upper }}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="user-role-badge">
+                    <i class="bi bi-person-badge me-1"></i>{{ user.get_role_display|default:user.role }}
+                </div>
+            </div>
+            <form method="post" action="{% url 'logout' %}" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn" title="Sign Out">
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Top Sticky Header Bar -->
+    <header class="app-header">
+        <div class="header-title-box">
+            <h1>{% block header_title %}Trackify Overview{% endblock %}</h1>
+        </div>
+        <div class="header-actions">
+            <span class="badge bg-light text-muted border px-3 py-2 d-none d-md-inline-block">
+                <i class="bi bi-building me-1 text-primary"></i> Enterprise Issue Tracker
+            </span>
+            <a href="{% url 'ticket_create' %}" class="btn btn-brand-danger btn-sm">
+                <i class="bi bi-plus-lg me-1"></i> Report Bug
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

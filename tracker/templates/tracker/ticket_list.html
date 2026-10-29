@@ -1,0 +1,120 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Bug Tickets - Trackify{% endblock %}
+{% block header_title %}Defects & Bug Tickets{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+    <!-- Header Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">Bug Tickets Directory</h4>
+            <p class="text-muted small mb-0">Track, prioritize, and assign software issues across active sprints</p>
+        </div>
+        <a href="{% url 'ticket_create' %}" class="btn btn-brand-danger">
+            <i class="bi bi-plus-circle me-1"></i> Report New Bug
+        </a>
+    </div>
+
+    <!-- Main Table Container -->
+    <div class="modern-card p-0 overflow-hidden">
+        <div class="p-4 border-bottom bg-light bg-opacity-50 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-dark">Active Tickets</span>
+                <span class="badge bg-secondary rounded-pill">{{ tickets.count }} Total</span>
+            </div>
+            
+            <div class="text-muted small">
+                <i class="bi bi-funnel me-1"></i> Sorted by most recent activity
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th style="width: 32%;">Issue Summary</th>
+                        <th>Project</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned Developer</th>
+                        <th>Logged Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'ticket_detail' ticket.id %}" class="fw-bold text-dark text-decoration-none d-block mb-1">
+                                {{ ticket.title }}
+                            </a>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-light text-muted border small">#BUG-{{ ticket.id }}</span>
+                                <span class="text-muted small">by {{ ticket.creator.username }}</span>
+                                {% if ticket.screenshot %}
+                                <span class="badge bg-info bg-opacity-10 text-info small"><i class="bi bi-image"></i> Attachment</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border px-2 py-1">
+                                <i class="bi bi-folder2 me-1 text-primary"></i>{{ ticket.project.name }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if ticket.priority == 'high' %}
+                                <span class="badge-pill-soft badge-soft-danger"><i class="bi bi-exclamation-octagon-fill"></i> High</span>
+                            {% elif ticket.priority == 'medium' %}
+                                <span class="badge-pill-soft badge-soft-warning"><i class="bi bi-exclamation-triangle-fill"></i> Medium</span>
+                            {% else %}
+                                <span class="badge-pill-soft badge-soft-info"><i class="bi bi-info-circle-fill"></i> Low</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if ticket.status == 'open' %}
+                                <span class="badge-pill-soft badge-soft-danger"><i class="bi bi-record-circle"></i> Open</span>
+                            {% elif ticket.status == 'in_progress' %}
+                                <span class="badge-pill-soft badge-soft-warning"><i class="bi bi-arrow-repeat"></i> In Progress</span>
+                            {% else %}
+                                <span class="badge-pill-soft badge-soft-success"><i class="bi bi-check-circle-fill"></i> Resolved</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if ticket.assigned_developer %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill">
+                                    <i class="bi bi-person-fill me-1"></i>{{ ticket.assigned_developer.username }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted small fst-italic">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">
+                            {{ ticket.created_at|date:"M d, Y" }}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-sm btn-light border rounded-pill px-3">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-check2-circle fs-1 text-success d-block mb-3"></i>
+                            <h5 class="fw-bold text-dark">No Bug Tickets Reported</h5>
+                            <p class="small mb-3">Everything looks clean. Report any newly discovered software defect below.</p>
+                            <a href="{% url 'ticket_create' %}" class="btn btn-brand-danger btn-sm">
+                                <i class="bi bi-plus-lg me-1"></i> Report Bug
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
