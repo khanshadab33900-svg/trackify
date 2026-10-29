@@ -334,84 +334,9 @@
             vertical-align: middle;
             font-size: 0.9rem;
         }
-
-        /* --- WAKEUP MODAL --- */
-        #wakeModalOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(15, 23, 42, 0.88);
-            backdrop-filter: blur(10px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 99999;
-            padding: 20px;
-        }
-
-        .wake-modal-card {
-            background: #1e293b;
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 36px 32px;
-            max-width: 440px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-        }
-
-        .pulse-ring {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: rgba(99, 102, 241, 0.2);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .pulse-ring::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid #6366f1;
-            animation: ripple 1.8s infinite ease-out;
-        }
-
-        @keyframes ripple {
-            0% { transform: scale(0.8); opacity: 1; }
-            100% { transform: scale(1.6); opacity: 0; }
-        }
     </style>
 </head>
 <body>
-
-<!-- WAKEUP POPUP FOR RENDER FREE TIER -->
-<div id="wakeModalOverlay">
-    <div class="wake-modal-card">
-        <div class="pulse-ring">
-            <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;"></div>
-        </div>
-        <h4 class="fw-bold mb-2">⚡ Waking Up Backend...</h4>
-        <p class="text-white-50 small mb-3">
-            Render Free Tier spins down inactive instances. Bringing Python & FastAPI online now.
-        </p>
-        <div class="progress bg-dark mb-3" style="height: 6px; border-radius: 3px;">
-            <div id="wakeProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 25%"></div>
-        </div>
-        <div class="d-flex justify-content-between align-items-center text-white-50 small">
-            <span>Elapsed: <strong id="wakeTimer" class="text-white">0s</strong></span>
-            <span>Est: 20-35s</span>
-        </div>
-    </div>
-</div>
 
 <!-- ================= 1. AUTHENTICATION SECTION (SIGN IN) ================= -->
 <div id="authSection">
@@ -819,38 +744,9 @@
     let wakeSeconds = 0;
     let wakeTimerInterval = null;
 
-    // --- AUTO-WAKEUP LOGIC FOR RENDER FREE TIER ---
-    (function initWakeup() {
-        const overlay = document.getElementById('wakeModalOverlay');
-        const timerEl = document.getElementById('wakeTimer');
-        const progressBar = document.getElementById('wakeProgressBar');
-
-        const showTimeout = setTimeout(() => {
-            if (!isBackendAwake) {
-                overlay.style.display = 'flex';
-                wakeTimerInterval = setInterval(() => {
-                    wakeSeconds++;
-                    timerEl.innerText = `${wakeSeconds}s`;
-                    let p = Math.min(25 + wakeSeconds * 2.8, 95);
-                    progressBar.style.width = `${p}%`;
-                }, 1000);
-            }
-        }, 1200);
-
-        function checkHealth() {
-            fetch(`${BACKEND_URL}/api/health`, { cache: 'no-store' })
-                .then(res => res.json())
-                .then(data => {
-                    isBackendAwake = true;
-                    clearTimeout(showTimeout);
-                    if (wakeTimerInterval) clearInterval(wakeTimerInterval);
-                    overlay.style.display = 'none';
-                })
-                .catch(() => {
-                    setTimeout(checkHealth, 3000);
-                });
-        }
-        checkHealth();
+    // Silent Background Pre-warm for Render Free Tier (No annoying blocking popups!)
+    (function prewarmBackend() {
+        fetch(`${BACKEND_URL}/api/health/`, { cache: 'no-store' }).catch(() => {});
     })();
 
     // Check existing session

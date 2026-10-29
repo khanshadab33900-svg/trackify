@@ -1,5 +1,42 @@
+# Virtual Environment
 venv/
+env/
+ENV/
+
+# Python & Django Bytecode Cache
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*$py.class
+*.so
+
+# Database
+*.sqlite3
+*.db
 db.sqlite3
+
+# Environment & Credentials
+.env
+.env.*
+*.local
+
+# Logs & Debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Static & Media Local Artifacts
+staticfiles/
+media/
+*.pdf
+
+# Editor & OS Files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Documentation build scratch
+docs/report_assets/
+docs/*.html

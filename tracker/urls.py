@@ -4,7 +4,9 @@ from . import views
 urlpatterns = [
     # Health checks for Render wake-up and auto-seeding
     path('health/', views.health_check, name='health_check'),
+    path('health', views.health_check, name='health_check_noslash'),
     path('api/health/', views.health_check, name='api_health_check'),
+    path('api/health', views.health_check, name='api_health_check_noslash'),
 
     # 1-Click Instant Demo Authentication
     path('demo-login/<str:role>/', views.demo_login, name='demo_login'),
