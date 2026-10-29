@@ -863,6 +863,7 @@
     function fillDemo(user, pass) {
         document.getElementById('loginUsername').value = user;
         document.getElementById('loginPassword').value = pass;
+        handleLogin({ preventDefault: () => {} });
     }
 
     // --- AUTHENTICATION ---

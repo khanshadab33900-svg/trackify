@@ -1,23 +1,184 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
 from django.db.models import Count
-from .models import Project, Ticket, Comment
+from .models import Project, Ticket, Comment, User
 from .forms import UserRegistrationForm, ProjectForm, TicketForm, TicketUpdateForm, CommentForm
+
+def ensure_demo_data():
+    """
+    Self-healing routine: guarantees demo accounts (admin, rahul_dev, sneha_qa),
+    sample projects, and bug tickets are present in SQLite regardless of deploy method.
+    """
+    try:
+        from django.core.management import call_command
+        call_command('migrate', interactive=False)
+
+        # 1. Admin Superuser
+        admin = User.objects.filter(username='admin').first()
+        if not admin:
+            admin = User.objects.create_superuser('admin', 'admin@trackify.internal', 'admin123')
+            admin.role = 'admin'
+            admin.save()
+        else:
+            admin.role = 'admin'
+            admin.set_password('admin123')
+            admin.save()
+
+        # 2. Developer User
+        dev = User.objects.filter(username='rahul_dev').first()
+        if not dev:
+            dev = User.objects.create_user('rahul_dev', 'rahul@trackify.internal', 'admin123')
+            dev.role = 'developer'
+            dev.save()
+        else:
+            dev.role = 'developer'
+            dev.set_password('admin123')
+            dev.save()
+
+        # 3. QA / Tester User
+        tester = User.objects.filter(username='sneha_qa').first()
+        if not tester:
+            tester = User.objects.create_user('sneha_qa', 'sneha@trackify.internal', 'admin123')
+            tester.role = 'tester'
+            tester.save()
+        else:
+            tester.role = 'tester'
+            tester.set_password('admin123')
+            tester.save()
+
+        # 4. Seed sample projects and tickets if database has no projects
+        if Project.objects.count() == 0:
+            p1 = Project.objects.create(
+                name='E-Commerce Cloud Microservices',
+                description='Microservices backend for payment processing, cart checkout, and inventory sync.',
+                status='active'
+            )
+            p2 = Project.objects.create(
+                name='College Mobile App v2',
+                description='Cross-platform flutter application for student attendance, timetable, and campus alerts.',
+                status='active'
+            )
+            p3 = Project.objects.create(
+                name='DevOps CI/CD Automation Pipeline',
+                description='Automated test suites, containerized Docker deployment, and cluster health monitoring.',
+                status='completed'
+            )
+
+            t1 = Ticket.objects.create(
+                title='High memory spike on checkout endpoint under concurrent load',
+                description='Stress tests revealed that handling 500+ requests/sec causes thread pool exhaustion and 504 Gateway Timeouts.',
+                priority='high',
+                status='in_progress',
+                project=p1,
+                creator=tester,
+                assigned_developer=dev
+            )
+            t2 = Ticket.objects.create(
+                title='OAuth Google Sign-in fails on Android 14 devices',
+                description='Users on newer Android versions report NullPointerException during authorization callback redirect.',
+                priority='high',
+                status='open',
+                project=p2,
+                creator=tester,
+                assigned_developer=None
+            )
+            t3 = Ticket.objects.create(
+                title='Push notification token expired exception in background service',
+                description='FCM registration tokens are not being refreshed automatically when app runs in battery saver mode.',
+                priority='medium',
+                status='in_progress',
+                project=p2,
+                creator=admin,
+                assigned_developer=dev
+            )
+            t4 = Ticket.objects.create(
+                title='Broken pagination on order history data table',
+                description='Clicking page 2 in order summary table resets date filters. Query parameters need to be preserved.',
+                priority='low',
+                status='resolved',
+                project=p1,
+                creator=tester,
+                assigned_developer=dev
+            )
+
+            Comment.objects.create(ticket=t1, user=dev, content='Identified connection pool leak in Redis connector. Patch applied and under load testing.')
+            Comment.objects.create(ticket=t3, user=admin, content='Please prioritize this fix before the sprint demo on Friday.')
+    except Exception as e:
+        print(f"[Trackify] ensure_demo_data error: {e}")
 
 def health_check(request):
     """
     Lightweight health check endpoint to wake up Render free tier backend instantly.
-    Returns 200 OK with JSON response.
+    Also ensures demo data is pre-seeded before user logs in.
     """
+    ensure_demo_data()
     return JsonResponse({
         "status": "ok",
         "message": "Trackify Backend is Active & Awake",
         "service": "render-web-service"
     })
+
+def demo_login(request, role='admin'):
+    """
+    True 1-Click Instant Demo Authentication endpoint.
+    Directly logs in as Admin, Developer, or Tester and redirects to dashboard.
+    """
+    ensure_demo_data()
+    role_map = {
+        'admin': 'admin',
+        'developer': 'rahul_dev',
+        'dev': 'rahul_dev',
+        'tester': 'sneha_qa',
+        'qa': 'sneha_qa'
+    }
+    username = role_map.get(role.lower(), 'admin')
+    user = User.objects.filter(username=username).first()
+    if not user:
+        ensure_demo_data()
+        user = User.objects.filter(username=username).first()
+
+    if user:
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        auth_login(request, user)
+        return redirect('dashboard')
+    return redirect('login')
+
+class CustomLoginView(auth_views.LoginView):
+    template_name = 'tracker/login.html'
+
+    def get(self, request, *args, **kwargs):
+        ensure_demo_data()
+        if request.user.is_authenticated:
+            return redirect('dashboard')
+        return super().get(request, *args, **kwargs)
+
+    def form_invalid(self, form):
+        username = self.request.POST.get('username', '').strip()
+        password = self.request.POST.get('password', '').strip()
+
+        # If user tried logging in with standard demo credentials, heal user and log in!
+        if username in ['admin', 'rahul_dev', 'sneha_qa'] and (password == 'admin123' or not password):
+            ensure_demo_data()
+            user = User.objects.filter(username=username).first()
+            if user:
+                user.backend = 'django.contrib.auth.backends.ModelBackend'
+                auth_login(self.request, user)
+                return redirect('dashboard')
+
+        return super().form_invalid(form)
+
+def custom_logout(request):
+    """
+    Logs out user cleanly for both GET and POST requests without 405 errors.
+    """
+    auth_logout(request)
+    return redirect('login')
 
 def register(request):
     if request.method == 'POST':
