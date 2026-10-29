@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trackify - Modern Defect & Issue Tracker</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-primary: #4f46e5;
+            --brand-primary-hover: #4338ca;
+            --brand-secondary: #06b6d4;
+            --brand-accent: #8b5cf6;
+            --sidebar-bg: #0f172a;
+            --sidebar-border: #1e293b;
+            --body-bg: #f8fafc;
+            --card-border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- AUTH LOGIN SCREEN STYLING --- */
+        #authSection {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.2) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 960px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .brand-icon-lg {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+
+        .auth-feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .auth-feature-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            color: #0f172a;
+            padding: 48px 40px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .demo-chip {
+            cursor: pointer;
+            padding: 6px 12px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+
+        .demo-chip:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        /* --- APP MAIN INTERFACE (SIDEBAR + CONTENT) --- */
+        #appSection {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .app-sidebar {
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            z-index: 1030;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            border-bottom: 1px solid var(--sidebar-border);
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .brand-text {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            background: rgba(99, 102, 241, 0.25);
+            color: #818cf8;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 14px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            padding: 8px 12px 6px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.92rem;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .sidebar-link.active {
+            color: #ffffff;
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.85), rgba(99, 102, 241, 0.65));
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .sidebar-user {
+            padding: 16px;
+            background: #090d16;
+            border-top: 1px solid var(--sidebar-border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        .app-header {
+            margin-left: 260px;
+            height: 70px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        .app-main {
+            margin-left: 260px;
+            padding: 32px;
+            min-height: calc(100vh - 70px);
+        }
+
+        .modern-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s ease;
+        }
+
+        .badge-pill-soft {
+            padding: 5px 12px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-soft-danger { background-color: #ffe4e6; color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.2); }
+        .badge-soft-warning { background-color: #fef3c7; color: #d97706; border: 1px solid rgba(217, 119, 6, 0.2); }
+        .badge-soft-success { background-color: #dcfce7; color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.2); }
+        .badge-soft-info { background-color: #e0f2fe; color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.2); }
+        .badge-soft-primary { background-color: #e0e7ff; color: #4f46e5; border: 1px solid rgba(79, 70, 229, 0.2); }
+
+        .btn-brand-primary {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 9px 20px;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
+        }
+
+        .btn-brand-danger {
+            background: linear-gradient(135deg, #ef4444, #f43f5e);
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 9px 20px;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.28);
+        }
+
+        .table-modern {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .table-modern thead th {
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .table-modern tbody td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+
+        /* --- WAKEUP MODAL --- */
+        #wakeModalOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            padding: 20px;
+        }
+
+        .wake-modal-card {
+            background: #1e293b;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 36px 32px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        .pulse-ring {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .pulse-ring::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid #6366f1;
+            animation: ripple 1.8s infinite ease-out;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- WAKEUP POPUP FOR RENDER FREE TIER -->
+<div id="wakeModalOverlay">
+    <div class="wake-modal-card">
+        <div class="pulse-ring">
+            <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;"></div>
+        </div>
+        <h4 class="fw-bold mb-2">⚡ Waking Up Backend...</h4>
+        <p class="text-white-50 small mb-3">
+            Render Free Tier spins down inactive instances. Bringing Python & FastAPI online now.
+        </p>
+        <div class="progress bg-dark mb-3" style="height: 6px; border-radius: 3px;">
+            <div id="wakeProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 25%"></div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center text-white-50 small">
+            <span>Elapsed: <strong id="wakeTimer" class="text-white">0s</strong></span>
+            <span>Est: 20-35s</span>
+        </div>
+    </div>
+</div>
+
+<!-- ================= 1. AUTHENTICATION SECTION (SIGN IN) ================= -->
+<div id="authSection">
+    <div class="auth-container">
+        <div class="row g-0">
+            <!-- Left Branding -->
+            <div class="col-lg-6 p-5 d-none d-lg-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="brand-icon-lg"><i class="bi bi-shield-check"></i></div>
+                        <div>
+                            <h3 class="fw-bold mb-0 text-white">Trackify</h3>
+                            <span class="text-white-50 small">Enterprise Bug & Issue Tracker</span>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold text-white mb-3" style="line-height: 1.3;">
+                        Streamline software defects, triage tasks & ship with confidence.
+                    </h2>
+                    <p class="text-white-50 mb-5">
+                        Centralized platform for developers, quality assurance teams, and project managers.
+                    </p>
+                    <div class="auth-feature-item">
+                        <div class="auth-feature-icon"><i class="bi bi-bug-fill"></i></div>
+                        <div>
+                            <h6 class="fw-bold text-white mb-1">Defect Lifecycle Management</h6>
+                            <p class="text-white-50 small mb-0">Priority tracking, screenshots attachment, and developer assignments.</p>
+                        </div>
+                    </div>
+                    <div class="auth-feature-item">
+                        <div class="auth-feature-icon"><i class="bi bi-people-fill"></i></div>
+                        <div>
+                            <h6 class="fw-bold text-white mb-1">Role-Based Access Control</h6>
+                            <p class="text-white-50 small mb-0">Workflows for Administrators, Developers, and Testers.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-white-50 small pt-3 border-top border-secondary border-opacity-25">
+                    © 2026 Trackify Systems Inc. • Fast Client-Server Architecture
+                </div>
+            </div>
+
+            <!-- Right Sign In Form -->
+            <div class="col-lg-6">
+                <div class="auth-card">
+                    <div class="mb-4">
+                        <h3 class="fw-bold mb-1">Sign In</h3>
+                        <p class="text-muted small">Enter workspace credentials to access your dashboard</p>
+                    </div>
+
+                    <div id="loginAlert" class="alert alert-danger py-2 px-3 rounded-3 small mb-3 d-none"></div>
+
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Username</label>
+                            <input type="text" id="loginUsername" class="form-control" placeholder="Enter username" required autofocus>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-semibold text-muted">Password</label>
+                            <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" required>
+                        </div>
+                        <button type="submit" id="btnLoginSubmit" class="btn btn-brand-primary w-100 py-2 mb-4">
+                            Sign In to Workspace <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    </form>
+
+                    <!-- Quick 1-Click Demo Fill -->
+                    <div class="pt-3 border-top">
+                        <div class="text-muted small fw-semibold mb-2">⚡ Quick Demo Login (1-Click):</div>
+                        <div class="d-flex gap-2">
+                            <span class="demo-chip" onclick="fillDemo('admin', 'admin123')">
+                                <i class="bi bi-shield-lock-fill text-primary me-1"></i> Admin Demo
+                            </span>
+                            <span class="demo-chip" onclick="fillDemo('rahul_dev', 'admin123')">
+                                <i class="bi bi-code-slash text-success me-1"></i> Developer Demo
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= 2. MAIN APPLICATION INTERFACE ================= -->
+<div id="appSection">
+    <!-- Sidebar -->
+    <aside class="app-sidebar">
+        <a href="#" class="sidebar-brand">
+            <div class="brand-icon"><i class="bi bi-shield-check"></i></div>
+            <div class="d-flex align-items-center">
+                <span class="brand-text">Trackify</span>
+                <span class="brand-badge">SaaS</span>
+            </div>
+        </a>
+        <div class="sidebar-nav">
+            <div class="nav-label">Core Modules</div>
+            <a onclick="showView('dashboard')" id="nav-dashboard" class="sidebar-link active">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Dashboard</span>
+            </a>
+            <a onclick="showView('projects')" id="nav-projects" class="sidebar-link">
+                <i class="bi bi-folder2-open"></i>
+                <span>Projects</span>
+            </a>
+            <a onclick="showView('tickets')" id="nav-tickets" class="sidebar-link">
+                <i class="bi bi-bug-fill"></i>
+                <span>Bug Tickets</span>
+            </a>
+            <div class="nav-label mt-3">Quick Actions</div>
+            <a onclick="openCreateTicketModal()" class="sidebar-link text-danger">
+                <i class="bi bi-plus-circle-fill"></i>
+                <span>Report Bug</span>
+            </a>
+            <a onclick="openCreateProjectModal()" id="nav-new-proj" class="sidebar-link text-primary">
+                <i class="bi bi-folder-plus"></i>
+                <span>New Project</span>
+            </a>
+        </div>
+        <div class="sidebar-user">
+            <div class="user-avatar" id="userAvatar">A</div>
+            <div class="user-info">
+                <div class="user-name text-white small fw-bold" id="userNameDisplay">Admin</div>
+                <div class="user-role-badge text-muted small" id="userRoleDisplay">Administrator</div>
+            </div>
+            <button onclick="handleLogout()" class="btn btn-sm btn-outline-danger border-0 text-white-50" title="Sign Out">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="app-header">
+        <h4 class="fw-bold mb-0" id="headerTitle">Dashboard Overview</h4>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-light text-muted border px-3 py-2">
+                <i class="bi bi-hdd-network-fill me-1 text-success"></i> FastAPI Backend Connected
+            </span>
+            <button onclick="openCreateTicketModal()" class="btn btn-brand-danger btn-sm">
+                <i class="bi bi-plus-lg me-1"></i> Report Bug
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+        
+        <!-- VIEW 1: DASHBOARD -->
+        <div id="view-dashboard">
+            <!-- Welcome Banner -->
+            <div class="modern-card p-4 bg-gradient d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"
+                 style="background: linear-gradient(135deg, #4f46e5, #3b82f6); color: white;">
+                <div>
+                    <h3 class="fw-bold mb-1">Welcome back, <span id="dashWelcomeName">Admin</span> 👋</h3>
+                    <p class="mb-0 text-white-50">Real-time status of all software engineering projects and active bug reports.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button onclick="openCreateProjectModal()" class="btn btn-light fw-bold text-primary shadow-sm rounded-3">
+                        <i class="bi bi-folder-plus me-1"></i> New Project
+                    </button>
+                    <button onclick="openCreateTicketModal()" class="btn btn-danger fw-bold shadow-sm rounded-3">
+                        <i class="bi bi-plus-circle me-1"></i> Report Bug
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Metric Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="modern-card p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted fw-semibold small text-uppercase">Total Projects</span>
+                            <div class="rounded-3 p-2 bg-primary bg-opacity-10 text-primary"><i class="bi bi-folder2 fs-4"></i></div>
+                        </div>
+                        <h2 class="fw-bold mb-0 text-dark" id="stat-projects">0</h2>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="modern-card p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted fw-semibold small text-uppercase">Total Bugs Logged</span>
+                            <div class="rounded-3 p-2 bg-danger bg-opacity-10 text-danger"><i class="bi bi-bug fs-4"></i></div>
+                        </div>
+                        <h2 class="fw-bold mb-0 text-dark" id="stat-tickets">0</h2>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="modern-card p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted fw-semibold small text-uppercase">In Progress / Open</span>
+                            <div class="rounded-3 p-2 bg-warning bg-opacity-10 text-warning"><i class="bi bi-hourglass-split fs-4"></i></div>
+                        </div>
+                        <h2 class="fw-bold mb-0 text-warning" id="stat-inprogress">0</h2>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="modern-card p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted fw-semibold small text-uppercase">Resolved Bugs</span>
+                            <div class="rounded-3 p-2 bg-success bg-opacity-10 text-success"><i class="bi bi-check2-circle fs-4"></i></div>
+                        </div>
+                        <h2 class="fw-bold mb-0 text-success" id="stat-resolved">0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Split Layout -->
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="modern-card p-0 overflow-hidden">
+                        <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">Recent Bug Tickets</h5>
+                            <button onclick="showView('tickets')" class="btn btn-sm btn-outline-primary rounded-pill px-3">View All</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table-modern">
+                                <thead>
+                                    <tr>
+                                        <th>Issue Summary</th>
+                                        <th>Project</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashRecentTickets"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="modern-card p-4">
+                        <h5 class="fw-bold mb-3">Active Software Projects</h5>
+                        <div class="d-flex flex-column gap-3" id="dashProjectsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: PROJECTS -->
+        <div id="view-projects" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">Projects Directory</h4>
+                <button onclick="openCreateProjectModal()" class="btn btn-brand-primary">
+                    <i class="bi bi-folder-plus me-1"></i> New Project
+                </button>
+            </div>
+            <div class="row g-4" id="projectsGrid"></div>
+        </div>
+
+        <!-- VIEW 3: TICKETS -->
+        <div id="view-tickets" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">Bug Tickets Directory</h4>
+                <button onclick="openCreateTicketModal()" class="btn btn-brand-danger">
+                    <i class="bi bi-plus-circle me-1"></i> Report New Bug
+                </button>
+            </div>
+            <div class="modern-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table-modern">
+                        <thead>
+                            <tr>
+                                <th>Issue Summary</th>
+                                <th>Project</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Assigned Developer</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allTicketsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- 1. TICKET DETAIL MODAL -->
+<div class="modal fade" id="ticketDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-bottom p-4">
+                <div>
+                    <span class="badge bg-primary bg-opacity-10 text-primary mb-1" id="modalTicketProject">Project</span>
+                    <h5 class="modal-title fw-bold" id="modalTicketTitle">Ticket Title</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-8">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-2">Description</h6>
+                        <div class="p-3 bg-light rounded-3 border mb-4 text-dark" id="modalTicketDesc"></div>
+                        
+                        <!-- Comments List -->
+                        <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-text me-2 text-primary"></i>Developer Comments</h6>
+                        <div class="d-flex flex-column gap-2 mb-3" id="modalTicketComments"></div>
+                        
+                        <!-- Add Comment Box -->
+                        <div class="p-3 bg-light rounded-3 border">
+                            <textarea id="newCommentInput" class="form-control mb-2" rows="2" placeholder="Post debugging notes or update..."></textarea>
+                            <button onclick="submitComment()" class="btn btn-sm btn-brand-primary">Post Comment</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 border mb-3">
+                            <div class="mb-2"><strong>Status:</strong> <span id="modalTicketStatus"></span></div>
+                            <div class="mb-2"><strong>Priority:</strong> <span id="modalTicketPriority"></span></div>
+                            <div class="mb-2"><strong>Reporter:</strong> <span id="modalTicketCreator"></span></div>
+                            <div class="mb-2"><strong>Developer:</strong> <span id="modalTicketDev"></span></div>
+                        </div>
+                        <div class="border p-3 rounded-3" id="devUpdateBox">
+                            <label class="form-label small fw-bold">Update Status:</label>
+                            <select id="updateStatusSelect" class="form-select form-select-sm mb-2">
+                                <option value="open">Open</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                            <button onclick="saveTicketStatus()" class="btn btn-sm btn-warning w-100 fw-bold">Update Status</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. CREATE TICKET MODAL -->
+<div class="modal fade" id="createTicketModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-bottom p-4">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-bug-fill me-2"></i>Report New Bug</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="createTicketForm" onsubmit="handleCreateTicket(event)">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Issue Title</label>
+                        <input type="text" id="newTicketTitle" class="form-control" placeholder="Brief summary of the defect" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Target Project</label>
+                        <select id="newTicketProject" class="form-select" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Priority Severity</label>
+                        <select id="newTicketPriority" class="form-select">
+                            <option value="high">High</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Detailed Description</label>
+                        <textarea id="newTicketDesc" class="form-control" rows="4" placeholder="Steps to reproduce, expected vs actual behavior..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-brand-danger w-100 py-2">Submit Bug Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. CREATE PROJECT MODAL -->
+<div class="modal fade" id="createProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-bottom p-4">
+                <h5 class="modal-title fw-bold text-primary"><i class="bi bi-folder-plus me-2"></i>Create New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="createProjectForm" onsubmit="handleCreateProject(event)">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Project Name</label>
+                        <input type="text" id="newProjName" class="form-control" placeholder="e.g. NextGen Web API, Mobile App" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Description</label>
+                        <textarea id="newProjDesc" class="form-control" rows="3" placeholder="Scope and modules of the project..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-brand-primary w-100 py-2">Save Project</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5.3 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ================= JAVASCRIPT APPLICATION CONTROLLER ================= -->
+<script>
+    // Configurable Cloud Backend REST API Target
+    const BACKEND_URL = "https://trackify-backend-uflh.onrender.com";
+
+    let currentUser = null;
+    let activeTicketId = null;
+    let isBackendAwake = false;
+    let wakeSeconds = 0;
+    let wakeTimerInterval = null;
+
+    // --- AUTO-WAKEUP LOGIC FOR RENDER FREE TIER ---
+    (function initWakeup() {
+        const overlay = document.getElementById('wakeModalOverlay');
+        const timerEl = document.getElementById('wakeTimer');
+        const progressBar = document.getElementById('wakeProgressBar');
+
+        const showTimeout = setTimeout(() => {
+            if (!isBackendAwake) {
+                overlay.style.display = 'flex';
+                wakeTimerInterval = setInterval(() => {
+                    wakeSeconds++;
+                    timerEl.innerText = `${wakeSeconds}s`;
+                    let p = Math.min(25 + wakeSeconds * 2.8, 95);
+                    progressBar.style.width = `${p}%`;
+                }, 1000);
+            }
+        }, 1200);
+
+        function checkHealth() {
+            fetch(`${BACKEND_URL}/api/health`, { cache: 'no-store' })
+                .then(res => res.json())
+                .then(data => {
+                    isBackendAwake = true;
+                    clearTimeout(showTimeout);
+                    if (wakeTimerInterval) clearInterval(wakeTimerInterval);
+                    overlay.style.display = 'none';
+                })
+                .catch(() => {
+                    setTimeout(checkHealth, 3000);
+                });
+        }
+        checkHealth();
+    })();
+
+    // Check existing session
+    const savedUser = localStorage.getItem('trackify_user');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        launchDashboard();
+    }
+
+    function fillDemo(user, pass) {
+        document.getElementById('loginUsername').value = user;
+        document.getElementById('loginPassword').value = pass;
+    }
+
+    // --- AUTHENTICATION ---
+    function handleLogin(e) {
+        e.preventDefault();
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+        const alertBox = document.getElementById('loginAlert');
+        const btn = document.getElementById('btnLoginSubmit');
+
+        alertBox.classList.add('d-none');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Signing In...`;
+
+        fetch(`${BACKEND_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Invalid username or password");
+            return res.json();
+        })
+        .then(user => {
+            currentUser = user;
+            localStorage.setItem('trackify_user', JSON.stringify(user));
+            launchDashboard();
+        })
+        .catch(err => {
+            alertBox.innerText = err.message || "Failed to authenticate";
+            alertBox.classList.remove('d-none');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = `Sign In to Workspace <i class="bi bi-arrow-right ms-1"></i>`;
+        });
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('trackify_user');
+        currentUser = null;
+        document.getElementById('appSection').style.display = 'none';
+        document.getElementById('authSection').style.display = 'flex';
+    }
+
+    function launchDashboard() {
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('appSection').style.display = 'block';
+
+        // Set user badge
+        document.getElementById('userAvatar').innerText = currentUser.username.charAt(0).toUpperCase();
+        document.getElementById('userNameDisplay').innerText = currentUser.full_name || currentUser.username;
+        document.getElementById('userRoleDisplay').innerText = currentUser.role.toUpperCase();
+        document.getElementById('dashWelcomeName').innerText = currentUser.username;
+
+        // Hide new project button for non-admins
+        if (currentUser.role !== 'admin') {
+            document.getElementById('nav-new-proj').style.display = 'none';
+        }
+
+        showView('dashboard');
+    }
+
+    // --- NAVIGATION CONTROLLER ---
+    function showView(viewName) {
+        ['dashboard', 'projects', 'tickets'].forEach(v => {
+            document.getElementById(`view-${v}`).classList.add('d-none');
+            document.getElementById(`nav-${v}`).classList.remove('active');
+        });
+
+        document.getElementById(`view-${viewName}`).classList.remove('d-none');
+        document.getElementById(`nav-${viewName}`).classList.add('active');
+
+        if (viewName === 'dashboard') {
+            document.getElementById('headerTitle').innerText = "Dashboard Overview";
+            loadDashboardStats();
+        } else if (viewName === 'projects') {
+            document.getElementById('headerTitle').innerText = "Software Projects";
+            loadProjects();
+        } else if (viewName === 'tickets') {
+            document.getElementById('headerTitle').innerText = "Bug Tickets Directory";
+            loadAllTickets();
+        }
+    }
+
+    // --- DATA LOADERS ---
+    function loadDashboardStats() {
+        fetch(`${BACKEND_URL}/api/dashboard/stats`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('stat-projects').innerText = data.total_projects;
+                document.getElementById('stat-tickets').innerText = data.total_tickets;
+                document.getElementById('stat-inprogress').innerText = data.in_progress_tickets;
+                document.getElementById('stat-resolved').innerText = data.resolved_tickets;
+
+                // Render recent tickets
+                const tbody = document.getElementById('dashRecentTickets');
+                tbody.innerHTML = '';
+                if (!data.recent_tickets || data.recent_tickets.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No tickets reported yet.</td></tr>`;
+                } else {
+                    data.recent_tickets.forEach(t => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><a onclick="openTicketDetail(${t.id})" class="fw-bold text-dark text-decoration-none" style="cursor:pointer;">${t.title}</a></td>
+                                <td><span class="badge bg-light text-dark border">${t.project_name}</span></td>
+                                <td>${renderPriorityBadge(t.priority)}</td>
+                                <td>${renderStatusBadge(t.status)}</td>
+                                <td class="text-end">
+                                    <button onclick="openTicketDetail(${t.id})" class="btn btn-sm btn-light border rounded-pill px-3">Inspect</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                // Render active projects
+                const projList = document.getElementById('dashProjectsList');
+                projList.innerHTML = '';
+                if (!data.projects || data.projects.length === 0) {
+                    projList.innerHTML = `<div class="text-muted small">No active projects yet.</div>`;
+                } else {
+                    data.projects.forEach(p => {
+                        projList.innerHTML += `
+                            <div class="p-3 rounded-3 border bg-light bg-opacity-50">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="fw-bold mb-0 text-dark">${p.name}</h6>
+                                    <span class="badge bg-success bg-opacity-10 text-success small">${p.status}</span>
+                                </div>
+                                <p class="text-muted small mb-2 text-truncate">${p.description || 'No description'}</p>
+                                <span class="badge bg-danger bg-opacity-10 text-danger">${p.ticket_count} Bugs</span>
+                            </div>
+                        `;
+                    });
+                }
+            })
+            .catch(console.error);
+    }
+
+    function loadProjects() {
+        fetch(`${BACKEND_URL}/api/projects`)
+            .then(res => res.json())
+            .then(projects => {
+                const grid = document.getElementById('projectsGrid');
+                grid.innerHTML = '';
+                projects.forEach(p => {
+                    grid.innerHTML += `
+                        <div class="col-xl-4 col-md-6">
+                            <div class="modern-card p-4 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h5 class="fw-bold mb-0 text-dark">${p.name}</h5>
+                                        <span class="badge-pill-soft badge-soft-success">${p.status}</span>
+                                    </div>
+                                    <p class="text-muted small mb-4">${p.description || 'No description provided.'}</p>
+                                </div>
+                                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-danger bg-opacity-10 text-danger">${p.ticket_count} Bugs</span>
+                                    <button onclick="filterTicketsByProject(${p.id})" class="btn btn-sm btn-outline-primary rounded-3">View Bugs</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+    }
+
+    function loadAllTickets(projectId = null) {
+        let url = `${BACKEND_URL}/api/tickets`;
+        if (projectId) url += `?project_id=${projectId}`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(tickets => {
+                const tbody = document.getElementById('allTicketsTable');
+                tbody.innerHTML = '';
+                if (tickets.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted">No bug tickets found.</td></tr>`;
+                    return;
+                }
+                tickets.forEach(t => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>
+                                <a onclick="openTicketDetail(${t.id})" class="fw-bold text-dark text-decoration-none d-block" style="cursor:pointer;">${t.title}</a>
+                                <span class="text-muted small">#BUG-${t.id} by ${t.creator_username}</span>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">${t.project_name}</span></td>
+                            <td>${renderPriorityBadge(t.priority)}</td>
+                            <td>${renderStatusBadge(t.status)}</td>
+                            <td><span class="badge bg-primary bg-opacity-10 text-primary">${t.dev_username || 'Unassigned'}</span></td>
+                            <td class="text-end">
+                                <button onclick="openTicketDetail(${t.id})" class="btn btn-sm btn-light border rounded-pill px-3">View Details</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+    }
+
+    function filterTicketsByProject(projId) {
+        showView('tickets');
+        loadAllTickets(projId);
+    }
+
+    // --- TICKET DETAIL MODAL ---
+    function openTicketDetail(ticketId) {
+        activeTicketId = ticketId;
+        fetch(`${BACKEND_URL}/api/tickets/${ticketId}`)
+            .then(res => res.json())
+            .then(t => {
+                document.getElementById('modalTicketTitle').innerText = t.title;
+                document.getElementById('modalTicketProject').innerText = t.project_name;
+                document.getElementById('modalTicketDesc').innerText = t.description || 'No description provided.';
+                document.getElementById('modalTicketStatus').innerHTML = renderStatusBadge(t.status);
+                document.getElementById('modalTicketPriority').innerHTML = renderPriorityBadge(t.priority);
+                document.getElementById('modalTicketCreator').innerText = t.creator_username;
+                document.getElementById('modalTicketDev').innerText = t.dev_username || 'Unassigned';
+                document.getElementById('updateStatusSelect').value = t.status;
+
+                // Render comments
+                const commBox = document.getElementById('modalTicketComments');
+                commBox.innerHTML = '';
+                if (!t.comments || t.comments.length === 0) {
+                    commBox.innerHTML = `<span class="text-muted small">No comments yet. Post the first update.</span>`;
+                } else {
+                    t.comments.forEach(c => {
+                        commBox.innerHTML += `
+                            <div class="p-2 bg-light rounded-3 border small">
+                                <strong class="text-primary">${c.username}</strong>: ${c.content}
+                            </div>
+                        `;
+                    });
+                }
+
+                new bootstrap.Modal(document.getElementById('ticketDetailModal')).show();
+            });
+    }
+
+    function submitComment() {
+        const content = document.getElementById('newCommentInput').value.trim();
+        if (!content) return;
+
+        fetch(`${BACKEND_URL}/api/tickets/${activeTicketId}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: currentUser.id, content })
+        })
+        .then(res => res.json())
+        .then(() => {
+            document.getElementById('newCommentInput').value = '';
+            openTicketDetail(activeTicketId);
+        });
+    }
+
+    function saveTicketStatus() {
+        const status = document.getElementById('updateStatusSelect').value;
+        fetch(`${BACKEND_URL}/api/tickets/${activeTicketId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+        })
+        .then(res => res.json())
+        .then(() => {
+            openTicketDetail(activeTicketId);
+            loadDashboardStats();
+            loadAllTickets();
+        });
+    }
+
+    // --- CREATE TICKET ---
+    function openCreateTicketModal() {
+        fetch(`${BACKEND_URL}/api/projects`)
+            .then(res => res.json())
+            .then(projects => {
+                const sel = document.getElementById('newTicketProject');
+                sel.innerHTML = '';
+                projects.forEach(p => {
+                    sel.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                });
+                new bootstrap.Modal(document.getElementById('createTicketModal')).show();
+            });
+    }
+
+    function handleCreateTicket(e) {
+        e.preventDefault();
+        const title = document.getElementById('newTicketTitle').value.trim();
+        const project_id = parseInt(document.getElementById('newTicketProject').value);
+        const priority = document.getElementById('newTicketPriority').value;
+        const description = document.getElementById('newTicketDesc').value.trim();
+
+        fetch(`${BACKEND_URL}/api/tickets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, description, priority, project_id, creator_id: currentUser.id })
+        })
+        .then(res => res.json())
+        .then(() => {
+            bootstrap.Modal.getInstance(document.getElementById('createTicketModal')).hide();
+            document.getElementById('createTicketForm').reset();
+            showView('tickets');
+        });
+    }
+
+    // --- CREATE PROJECT ---
+    function openCreateProjectModal() {
+        new bootstrap.Modal(document.getElementById('createProjectModal')).show();
+    }
+
+    function handleCreateProject(e) {
+        e.preventDefault();
+        const name = document.getElementById('newProjName').value.trim();
+        const description = document.getElementById('newProjDesc').value.trim();
+
+        fetch(`${BACKEND_URL}/api/projects`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, description })
+        })
+        .then(res => res.json())
+        .then(() => {
+            bootstrap.Modal.getInstance(document.getElementById('createProjectModal')).hide();
+            document.getElementById('createProjectForm').reset();
+            showView('projects');
+        });
+    }
+
+    // Helper Badges
+    function renderPriorityBadge(priority) {
+        if (priority === 'high') return `<span class="badge-pill-soft badge-soft-danger"><i class="bi bi-exclamation-octagon-fill"></i> High</span>`;
+        if (priority === 'medium') return `<span class="badge-pill-soft badge-soft-warning"><i class="bi bi-exclamation-triangle-fill"></i> Medium</span>`;
+        return `<span class="badge-pill-soft badge-soft-info"><i class="bi bi-info-circle-fill"></i> Low</span>`;
+    }
+
+    function renderStatusBadge(status) {
+        if (status === 'open') return `<span class="badge-pill-soft badge-soft-danger"><i class="bi bi-record-circle"></i> Open</span>`;
+        if (status === 'in_progress') return `<span class="badge-pill-soft badge-soft-warning"><i class="bi bi-arrow-repeat"></i> In Progress</span>`;
+        return `<span class="badge-pill-soft badge-soft-success"><i class="bi bi-check-circle-fill"></i> Resolved</span>`;
+    }
+</script>
+
+</body>
+</html>

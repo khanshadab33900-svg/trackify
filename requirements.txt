@@ -1,8 +1,12 @@
-Django>=5.0,<7.0
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.0.0
+python-multipart>=0.0.9
+gunicorn
+Django>=5.0
 asgiref
 sqlparse
 tzdata
 Pillow
-gunicorn
 whitenoise
 django-cors-headers
