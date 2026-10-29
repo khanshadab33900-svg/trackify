@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trackify - Cloud Static Client & Gateway</title>
+    <title>Trackify - Loading Workspace...</title>
     <!-- Bootstrap 5.3 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -20,82 +18,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 30px 20px;
+            margin: 0;
+            padding: 20px;
             background-image: 
                 radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.2) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.2) 0px, transparent 50%);
         }
 
-        .portal-card {
-            max-width: 680px;
-            width: 100%;
-            background: rgba(30, 41, 59, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 24px;
-            padding: 44px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .brand-icon-lg {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #6366f1, #06b6d4);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-            font-size: 1.6rem;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
-            margin-bottom: 16px;
-        }
-
-        .btn-portal-primary {
-            background: linear-gradient(135deg, #4f46e5, #6366f1);
-            color: #ffffff;
-            border: none;
-            font-weight: 700;
-            padding: 14px 28px;
-            border-radius: 12px;
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-portal-primary:hover {
-            background: linear-gradient(135deg, #4338ca, #4f46e5);
-            color: #ffffff;
-            transform: translateY(-2px);
-        }
-
-        /* Wakeup Modal */
-        #wakeModalOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 99999;
-            padding: 20px;
-        }
-
-        .wake-modal-card {
+        .loader-card {
             background: #1e293b;
             color: #ffffff;
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 20px;
-            padding: 36px 32px;
+            padding: 40px 32px;
             max-width: 440px;
             width: 100%;
             text-align: center;
@@ -111,7 +46,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .pulse-ring::before {
@@ -128,137 +63,71 @@
             0% { transform: scale(0.8); opacity: 1; }
             100% { transform: scale(1.6); opacity: 0; }
         }
-
-        .status-badge {
-            padding: 6px 14px;
-            border-radius: 9999px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
     </style>
 </head>
 <body>
 
-<!-- Auto-Wakeup Modal for Render Free Tier -->
-<div id="wakeModalOverlay">
-    <div class="wake-modal-card">
-        <div class="pulse-ring">
-            <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;"></div>
-        </div>
-        <h4 class="fw-bold mb-2">⚡ Waking Up Backend...</h4>
-        <p class="text-white-50 small mb-3">
-            Render Free Tier spins down inactive instances. Sending warm-up ping now.
-        </p>
-        
-        <div class="progress bg-dark mb-3" style="height: 6px; border-radius: 3px;">
-            <div id="wakeProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 20%"></div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center text-white-50 small">
-            <span>Elapsed: <strong id="wakeTimer" class="text-white">0s</strong></span>
-            <span>Est: 20-35s</span>
-        </div>
+<div class="loader-card">
+    <div class="pulse-ring">
+        <div class="spinner-border text-primary" role="status" style="width: 2.2rem; height: 2.2rem;"></div>
     </div>
-</div>
-
-<div class="portal-card text-center">
-    <div class="brand-icon-lg">
-        <i class="bi bi-shield-check"></i>
-    </div>
-    <h2 class="fw-bold text-white mb-2">Trackify Cloud Gateway</h2>
-    <p class="text-white-50 mb-4">
-        Enterprise Bug & Issue Tracker Static Portal Client for Render Web Service
+    <h4 id="statusTitle" class="fw-bold mb-2">Connecting to Trackify...</h4>
+    <p id="statusDesc" class="text-white-50 small mb-4">
+        Directly connecting to your cloud workspace. Please hold on...
     </p>
 
-    <!-- Backend Status Monitor Card -->
-    <div class="p-4 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25 mb-4 text-start">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="text-white-50 small text-uppercase fw-bold">Backend Service Target:</span>
-            <span id="backendStatusPill" class="status-badge bg-secondary bg-opacity-25 text-white-50">
-                <span class="spinner-grow spinner-grow-sm" role="status"></span> Checking...
-            </span>
-        </div>
-        <div class="input-group">
-            <span class="input-group-text bg-dark border-secondary border-opacity-50 text-white-50"><i class="bi bi-link-45deg"></i></span>
-            <input type="text" id="targetBackendInput" class="form-control bg-dark border-secondary border-opacity-50 text-white" value="https://trackify-backend-uflh.onrender.com" placeholder="https://your-service.onrender.com">
-            <button class="btn btn-outline-light" onclick="updateBackendTarget()">Save</button>
-        </div>
-        <small class="text-white-50 d-block mt-2">
-            <i class="bi bi-info-circle me-1"></i> Connected to your live Render Web Service instance.
-        </small>
+    <div class="progress bg-dark mb-3" style="height: 6px; border-radius: 3px;">
+        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 35%"></div>
     </div>
 
-    <!-- Actions -->
-    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-        <a id="btnLaunchApp" href="https://trackify-backend-uflh.onrender.com/login/" class="btn-portal-primary">
-            Launch Workspace <i class="bi bi-arrow-right"></i>
-        </a>
-        <button onclick="pingBackend()" class="btn btn-outline-light rounded-3 py-3 px-4 fw-semibold">
-            <i class="bi bi-lightning-charge me-1"></i> Send Wake-Up Ping
-        </button>
+    <div class="d-flex justify-content-between align-items-center text-white-50 small">
+        <span id="elapsedText">Status: <strong>Connecting</strong></span>
+        <span>Auto-Redirecting</span>
     </div>
 </div>
 
 <script>
-    let currentBackend = localStorage.getItem('trackify_backend_url') || 'https://trackify-backend-uflh.onrender.com';
-    document.getElementById('targetBackendInput').value = currentBackend;
-    document.getElementById('btnLaunchApp').href = `${currentBackend}/login/`;
+    const LIVE_BACKEND_URL = "https://trackify-backend-uflh.onrender.com";
+    const TARGET_PAGE = `${LIVE_BACKEND_URL}/login/`;
+    
+    let seconds = 0;
+    let timerInterval = null;
+    let isConnected = false;
 
-    function updateBackendTarget() {
-        const val = document.getElementById('targetBackendInput').value.trim().replace(/\/$/, '');
-        if (val) {
-            currentBackend = val;
-            localStorage.setItem('trackify_backend_url', currentBackend);
-            document.getElementById('btnLaunchApp').href = `${currentBackend}/login/`;
-            pingBackend();
+    // Start timer display if it takes more than 1 second (sleeping backend)
+    setTimeout(() => {
+        if (!isConnected) {
+            document.getElementById('statusTitle').innerText = "⚡ Waking Up Server...";
+            document.getElementById('statusDesc').innerText = "Render Free Tier spins down inactive instances. Booting instances now (takes ~25s)...";
+            timerInterval = setInterval(() => {
+                seconds++;
+                document.getElementById('elapsedText').innerHTML = `Elapsed: <strong class="text-white">${seconds}s</strong>`;
+                let p = Math.min(35 + seconds * 2.5, 95);
+                document.getElementById('progressBar').style.width = `${p}%`;
+            }, 1000);
         }
-    }
+    }, 1200);
 
-    function pingBackend() {
-        const overlay = document.getElementById('wakeModalOverlay');
-        const timerEl = document.getElementById('wakeTimer');
-        const progressBar = document.getElementById('wakeProgressBar');
-        const pill = document.getElementById('backendStatusPill');
-
-        let seconds = 0;
-        let timerInterval = null;
-        let isAwake = false;
-
-        const showTimeout = setTimeout(() => {
-            if (!isAwake) {
-                overlay.style.display = 'flex';
-                timerInterval = setInterval(() => {
-                    seconds++;
-                    timerEl.innerText = `${seconds}s`;
-                    let progress = Math.min(20 + seconds * 2.5, 95);
-                    progressBar.style.width = `${progress}%`;
-                }, 1000);
-            }
-        }, 1500);
-
-        fetch(`${currentBackend}/api/health/`, { cache: 'no-store' })
+    function pingAndRedirect() {
+        fetch(`${LIVE_BACKEND_URL}/api/health/`, { cache: 'no-store' })
             .then(res => res.json())
-            .then(data => {
-                isAwake = true;
-                clearTimeout(showTimeout);
+            .then(() => {
+                isConnected = true;
                 if (timerInterval) clearInterval(timerInterval);
-                overlay.style.display = 'none';
-                pill.className = 'status-badge bg-success bg-opacity-25 text-success border border-success border-opacity-50';
-                pill.innerHTML = '<i class="bi bi-check-circle-fill"></i> Live & Active';
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('statusTitle').innerText = "✅ Ready! Launching...";
+                // Instant seamless auto-redirect to live app
+                window.location.replace(TARGET_PAGE);
             })
-            .catch(err => {
-                pill.className = 'status-badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50';
-                pill.innerHTML = '<i class="bi bi-hourglass-split"></i> Waking Instance...';
+            .catch(() => {
+                // Retry every 2.5 seconds until awake
+                setTimeout(pingAndRedirect, 2500);
             });
     }
 
-    // Ping on initial load
-    pingBackend();
+    // Fire immediately
+    pingAndRedirect();
 </script>
 
 </body>
 </html>
-
