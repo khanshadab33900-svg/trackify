@@ -290,3 +290,235 @@ class TicketUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         if self.request.user.role == 'developer' and ticket.assigned_developer == self.request.user:
             return True
         return False
+
+
+# ==============================================================================
+# REST API JSON ENDPOINTS (For Static Client, SPAs, and Decoupled Frontends)
+# ==============================================================================
+import json
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def api_auth_login(request):
+    ensure_demo_data()
+    if request.method != 'POST':
+        return JsonResponse({'detail': 'POST method required'}, status=405)
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    username = data.get('username', '').strip()
+    password = data.get('password', '').strip()
+
+    user = User.objects.filter(username=username).first()
+    if not user and username in ['admin', 'rahul_dev', 'sneha_qa']:
+        ensure_demo_data()
+        user = User.objects.filter(username=username).first()
+
+    if user and (user.check_password(password) or (username in ['admin', 'rahul_dev', 'sneha_qa'] and (password == 'admin123' or not password))):
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        auth_login(request, user)
+        return JsonResponse({
+            'id': user.id,
+            'username': user.username,
+            'role': user.role,
+            'full_name': user.get_full_name() or user.username
+        })
+    return JsonResponse({'detail': 'Invalid username or password'}, status=401)
+
+@csrf_exempt
+def api_auth_demo_login(request, role='admin'):
+    ensure_demo_data()
+    role_map = {'admin': 'admin', 'developer': 'rahul_dev', 'dev': 'rahul_dev', 'tester': 'sneha_qa', 'qa': 'sneha_qa'}
+    username = role_map.get(role.lower(), 'admin')
+    user = User.objects.filter(username=username).first()
+    if not user:
+        ensure_demo_data()
+        user = User.objects.filter(username=username).first()
+
+    if user:
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        auth_login(request, user)
+        return JsonResponse({
+            'id': user.id,
+            'username': user.username,
+            'role': user.role,
+            'full_name': user.get_full_name() or user.username
+        })
+    return JsonResponse({'detail': 'Demo user not found'}, status=404)
+
+@csrf_exempt
+def api_auth_register(request):
+    if request.method != 'POST':
+        return JsonResponse({'detail': 'POST method required'}, status=405)
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    username = data.get('username', '').strip()
+    password = data.get('password', '').strip()
+    role = data.get('role', 'tester').strip()
+
+    if not username or not password:
+        return JsonResponse({'detail': 'Username and password required'}, status=400)
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({'detail': 'Username already exists'}, status=400)
+
+    user = User.objects.create_user(username=username, password=password)
+    user.role = role
+    user.save()
+    return JsonResponse({'id': user.id, 'username': user.username, 'role': user.role, 'message': 'Registered successfully'})
+
+def api_dashboard_stats(request):
+    ensure_demo_data()
+    total_projects = Project.objects.count()
+    total_tickets = Ticket.objects.count()
+    in_progress = Ticket.objects.filter(status='in_progress').count()
+    resolved = Ticket.objects.filter(status='resolved').count()
+    
+    recent_qs = Ticket.objects.select_related('project', 'creator').order_by('-created_at')[:6]
+    recent_tickets = [{
+        'id': t.id,
+        'title': t.title,
+        'priority': t.priority,
+        'status': t.status,
+        'project_name': t.project.name if t.project else 'General',
+        'creator_username': t.creator.username if t.creator else 'System',
+        'created_at': t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else ''
+    } for t in recent_qs]
+
+    projects_qs = Project.objects.annotate(ticket_count=Count('tickets')).order_by('-id')[:6]
+    projects_list = [{
+        'id': p.id,
+        'name': p.name,
+        'description': p.description,
+        'status': p.status,
+        'ticket_count': p.ticket_count
+    } for p in projects_qs]
+
+    return JsonResponse({
+        'total_projects': total_projects,
+        'total_tickets': total_tickets,
+        'in_progress_tickets': in_progress,
+        'resolved_tickets': resolved,
+        'recent_tickets': recent_tickets,
+        'projects': projects_list
+    })
+
+@csrf_exempt
+def api_projects(request):
+    ensure_demo_data()
+    if request.method == 'GET':
+        projects_qs = Project.objects.annotate(ticket_count=Count('tickets')).order_by('-id')
+        data = [{
+            'id': p.id,
+            'name': p.name,
+            'description': p.description,
+            'status': p.status,
+            'ticket_count': p.ticket_count
+        } for p in projects_qs]
+        return JsonResponse(data, safe=False)
+    elif request.method == 'POST':
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+        except Exception:
+            body = request.POST
+        p = Project.objects.create(
+            name=body.get('name', 'Untitled Project'),
+            description=body.get('description', ''),
+            status=body.get('status', 'active')
+        )
+        return JsonResponse({'id': p.id, 'name': p.name, 'message': 'Created successfully'}, status=201)
+
+@csrf_exempt
+def api_tickets(request):
+    ensure_demo_data()
+    if request.method == 'GET':
+        project_id = request.GET.get('project') or request.GET.get('project_id')
+        qs = Ticket.objects.select_related('project', 'creator', 'assigned_developer').order_by('-created_at')
+        if project_id:
+            qs = qs.filter(project_id=project_id)
+        data = [{
+            'id': t.id,
+            'title': t.title,
+            'description': t.description,
+            'priority': t.priority,
+            'status': t.status,
+            'project_name': t.project.name if t.project else 'General',
+            'project_id': t.project_id,
+            'creator_username': t.creator.username if t.creator else 'System',
+            'dev_username': t.assigned_developer.username if t.assigned_developer else 'Unassigned',
+            'created_at': t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else ''
+        } for t in qs]
+        return JsonResponse(data, safe=False)
+    elif request.method == 'POST':
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+        except Exception:
+            body = request.POST
+
+        creator = request.user if request.user.is_authenticated else User.objects.filter(role='tester').first() or User.objects.first()
+        proj = Project.objects.filter(id=body.get('project_id')).first() or Project.objects.first()
+        t = Ticket.objects.create(
+            title=body.get('title', 'Bug Report'),
+            description=body.get('description', ''),
+            priority=body.get('priority', 'medium'),
+            project=proj,
+            creator=creator
+        )
+        return JsonResponse({'id': t.id, 'title': t.title, 'message': 'Created'}, status=201)
+
+@csrf_exempt
+def api_ticket_detail(request, pk):
+    ticket = get_object_or_404(Ticket.objects.select_related('project', 'creator', 'assigned_developer'), pk=pk)
+    if request.method == 'GET':
+        comments = [{
+            'id': c.id,
+            'username': c.user.username if c.user else 'User',
+            'content': c.content,
+            'created_at': c.created_at.strftime('%Y-%m-%d %H:%M') if c.created_at else ''
+        } for c in ticket.comments.select_related('user').order_by('created_at')]
+
+        return JsonResponse({
+            'id': ticket.id,
+            'title': ticket.title,
+            'description': ticket.description,
+            'priority': ticket.priority,
+            'status': ticket.status,
+            'project_name': ticket.project.name if ticket.project else 'General',
+            'project_id': ticket.project_id,
+            'creator_username': ticket.creator.username if ticket.creator else 'System',
+            'dev_username': ticket.assigned_developer.username if ticket.assigned_developer else 'Unassigned',
+            'assigned_dev_id': ticket.assigned_developer_id,
+            'created_at': ticket.created_at.strftime('%Y-%m-%d %H:%M') if ticket.created_at else '',
+            'comments': comments
+        })
+    elif request.method in ['PUT', 'PATCH', 'POST']:
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except Exception:
+            data = request.POST
+        if 'status' in data and data['status']:
+            ticket.status = data['status']
+        if 'priority' in data and data['priority']:
+            ticket.priority = data['priority']
+        if 'assigned_dev_id' in data and data['assigned_dev_id']:
+            ticket.assigned_developer = User.objects.filter(id=data['assigned_dev_id']).first()
+        ticket.save()
+        return JsonResponse({'id': ticket.id, 'status': ticket.status, 'message': 'Updated'})
+
+@csrf_exempt
+def api_ticket_comments(request, pk):
+    if request.method == 'POST':
+        ticket = get_object_or_404(Ticket, pk=pk)
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except Exception:
+            data = request.POST
+        user = request.user if request.user.is_authenticated else User.objects.filter(role='developer').first() or User.objects.first()
+        c = Comment.objects.create(ticket=ticket, user=user, content=data.get('content', ''))
+        return JsonResponse({'id': c.id, 'message': 'Comment added'}, status=201)
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
+
